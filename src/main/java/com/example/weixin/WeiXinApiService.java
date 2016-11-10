@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
@@ -27,25 +28,24 @@ public class WeiXinApiService {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-	// private static final String APP_ID = "wx5fbb358f8522f1dd";
-	// private static final String APP_SECRET =
-	// "fcc750adbd8f8ccf3dede394ac2f3a4c";
-
 	// 微信号测试
-	private static final String APP_ID_TEST = "wxb9824c8009905694";
-	private static final String APP_SECRET_TEST = "c34bd9d2843d6b8b8312c902e4e94228";
+	@Value("${weixin.appId}")
+	private  String weixinAppId;
+	
+	@Value("${weixin.appSecret}")
+	private  String weixinAppSecret;
 
 	@Resource(name = "stringRedisTemplate")
 	private ValueOperations<Object, Object> valOpsStr;
 
 	public String getAccessToken() {
 		String accessToken = null;
-		Object cache = valOpsStr.get("weixin_access_token" + APP_ID_TEST);
+		Object cache = valOpsStr.get("weixin_access_token_" + weixinAppId);
 		if (cache == null) {
 			try {
 				String jsonStr = HttpClientUtils
-						.get("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + APP_ID_TEST
-								+ "&secret=" + APP_SECRET_TEST);
+						.get("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + weixinAppId
+								+ "&secret=" + weixinAppSecret);
 				JSONObject result = JSONObject.parseObject(jsonStr);
 				String accessTokenCache = result.getString("access_token");
 				if (accessTokenCache != null) {

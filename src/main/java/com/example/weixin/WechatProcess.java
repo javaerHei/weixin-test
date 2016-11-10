@@ -47,6 +47,11 @@ public class WechatProcess {
 				System.out.println("用户:"+event.getFromUserName() + " 点赞我们!");
 				result = FormatXmlProcessUtils.formatTextMessage(message.getFromUserName(), message.getToUserName(),
 						"感谢您的点赞");
+			}else if("V1001_JOKE".equals(eventKey)) {
+				// 
+				result = new TulingApiProcess().getTulingResult("笑话");
+				result = FormatXmlProcessUtils.formatTextMessage(message.getFromUserName(), message.getToUserName(),
+						result);
 			}
 			System.out.println(eventKey);
 		}
