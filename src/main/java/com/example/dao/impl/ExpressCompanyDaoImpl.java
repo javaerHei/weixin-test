@@ -2,6 +2,7 @@ package com.example.dao.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -58,6 +59,31 @@ public class ExpressCompanyDaoImpl extends BaseDaoImpl implements ExpressCompany
 						return null;
 					}
 				});
+	}
+
+	@Override
+	public long addExpressCompany(String companyName, String companyUrl, String fineexCode, String kdybCode,
+			String haoserviceCode) {
+		String sql = "INSERT INTO `t_express_company`(`company_name`, `company_url`, `fineex_code`, `kdyb_code`,"
+				+ " `haoservice_code`, `created_date`, `updated_date`, `del_flag`) VALUES (?,?,?,?,?,NOW(),NOW(),?)";
+		return super.insert(sql, new Object[] { companyName, companyUrl, fineexCode, kdybCode, haoserviceCode,
+				Constants.DEL_FLAG_NORMAL }, "id");
+	}
+
+	@Override
+	public void batchAdd(List<ExpressCompany> expressCompanyList) {
+		List<Object[]> paramList = new ArrayList<>();
+		for (ExpressCompany expressCompany : expressCompanyList) {
+			Object[] paramArray = new Object[] { expressCompany.getCompanyName(), expressCompany.getCompanyUrl(),
+					expressCompany.getFineexCode(), expressCompany.getKdybCode(), expressCompany.getHaoserviceCode(),
+					Constants.DEL_FLAG_NORMAL };
+			paramList.add(paramArray);
+		}
+
+		jdbcTemplate.batchUpdate(
+				"INSERT INTO `t_express_company`(`company_name`, `company_url`, `fineex_code`, `kdyb_code`,"
+						+ " `haoservice_code`, `created_date`, `updated_date`, `del_flag`) VALUES (?,?,?,?,?,NOW(),NOW(),?)",
+				paramList);
 	}
 
 }
