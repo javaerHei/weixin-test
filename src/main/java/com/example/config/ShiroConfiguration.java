@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 import com.example.web.shiro.RedisCacheManager;
 import com.example.web.shiro.ShiroRealmImpl;
@@ -31,11 +32,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @since 1.0
  * @version 1.0
  */
+@EnableRedisHttpSession
 @Configuration
 public class ShiroConfiguration extends CachingConfigurerSupport {
 
 	// 应用的时候将其配置成properties文件
-	private static Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
+	//private static Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
 
 	@Autowired
 	private RedisConnectionFactory factory;
@@ -77,24 +79,11 @@ public class ShiroConfiguration extends CachingConfigurerSupport {
 	public ShiroRealmImpl shiroRealm() {
 		return new ShiroRealmImpl();
 	}
-	/*
-	 * @Bean(name = "shiroEhcacheManager") public EhCacheManager
-	 * getEhCacheManager() { EhCacheManager em = new EhCacheManager();
-	 * em.setCacheManagerConfigFile("classpath:ehcache-shiro.xml"); return em; }
-	 */
 
 	@Bean
 	public RedisCacheManager redisCacheManager() {
 		return new RedisCacheManager(redisTemplate(factory));
 	}
-
-	/*
-	 * @Bean(name = "shiroCacheManager") public ShiroCacheManager
-	 * shiroCacheManager() { ShiroCacheManager shiroCacheManager = new
-	 * ShiroCacheManager();
-	 * shiroCacheManager.setSimpleCacheManager(simpleCacheManager()); return
-	 * shiroCacheManager; }
-	 */
 
 	@Bean(name = "lifecycleBeanPostProcessor")
 	public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
@@ -120,7 +109,6 @@ public class ShiroConfiguration extends CachingConfigurerSupport {
 		dwsm.setRealm(shiroRealm());
 		// <!-- 用户授权/认证信息Cache -->
 		dwsm.setCacheManager(redisCacheManager());
-		// dwsm.setCacheManager(getEhCacheManager());
 		return dwsm;
 	}
 
@@ -139,8 +127,7 @@ public class ShiroConfiguration extends CachingConfigurerSupport {
 		shiroFilterFactoryBean.setSuccessUrl("/user");
 		shiroFilterFactoryBean.setUnauthorizedUrl("/403");
 
-		filterChainDefinitionMap.put("/sa/**", "authc");
-		filterChainDefinitionMap.put("/**", "anon");
+		
 		loadShiroFilterChain(shiroFilterFactoryBean);
 		return shiroFilterFactoryBean;
 	}
@@ -154,12 +141,19 @@ public class ShiroConfiguration extends CachingConfigurerSupport {
 		/////////////////////// 下面这些规则配置最好配置到配置文件中 ///////////////////////
 		Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
 		// authc：该过滤器下的页面必须验证后才能访问，它是Shiro内置的一个拦截器org.apache.shiro.web.filter.authc.FormAuthenticationFilter
+		filterChainDefinitionMap.put("/sa/**", "authc");
 		filterChainDefinitionMap.put("/user", "authc");// 这里为了测试，只限制/user，实际开发中请修改为具体拦截的请求规则
-		// anon：它对应的过滤器里面是空的,什么都没做
 		filterChainDefinitionMap.put("/user/edit/**", "authc,perms[user:edit]");// 这里为了测试，固定写死的值，也可以从数据库或其他配置中读取
-
+	
+		// anon：它对应的过滤器里面是空的,什么都没做
 		filterChainDefinitionMap.put("/login", "anon");
-		filterChainDefinitionMap.put("/**", "anon");// anon 可以理解为不拦截
+		// 静态资源
+		filterChainDefinitionMap.put("/images/**", "anon");
+		filterChainDefinitionMap.put("/javascripts/**", "anon");
+		filterChainDefinitionMap.put("/lib/**", "anon");
+		filterChainDefinitionMap.put("/stylesheets/**", "anon");
+		
+		//filterChainDefinitionMap.put("/**", "anon");// anon 可以理解为不拦截
 
 		shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
 	}

@@ -43,16 +43,21 @@ public class ShiroController {
 	@Autowired
 	private UserDao userDao;
 
-	@RequestMapping(value = "/login", method = RequestMethod.GET)
+	@RequestMapping(value = {""}, method = RequestMethod.GET)
+	public String index() {
+		return "redirect:/user";
+	}
+	
+	@RequestMapping(value = {"/login"}, method = RequestMethod.GET)
 	public String loginForm(Model model) {
 		model.addAttribute("user", new User());
-		return "login";
+		return "sign-in";
 	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String login(@Valid User user, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 		if (bindingResult.hasErrors()) {
-			return "login";
+			return "sign-in";
 		}
 
 		String username = user.getUsername();
@@ -108,7 +113,8 @@ public class ShiroController {
 		return "403";
 	}
 
-	@RequestMapping("/user")
+	
+	@RequestMapping(value = {"/user"})
 	public String getUserList(HttpServletRequest request, Map<String, Object> model) {
 		model.put("userList", userDao.getList());
 		// redis session 测试
