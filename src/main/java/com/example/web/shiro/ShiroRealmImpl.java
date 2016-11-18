@@ -1,4 +1,4 @@
-package com.example.web;
+package com.example.web.shiro;
 
 import java.util.List;
 

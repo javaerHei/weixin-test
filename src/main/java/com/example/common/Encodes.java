@@ -1,6 +1,3 @@
-/**
- * Copyright (c) 2005-2012 springside.org.cn
- */
 package com.example.common;
 
 import java.io.UnsupportedEncodingException;

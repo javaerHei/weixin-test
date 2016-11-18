@@ -2,7 +2,6 @@ package com.example.config;
 
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
@@ -24,10 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  * @version v.0.1
  */
-@Configuration
+//@Configuration
 public class RedisCacheConfig extends CachingConfigurerSupport {
-	
-	
 
 	/**
 	 * RedisTemplate缓存操作类,类似于jdbcTemplate的一个类;
@@ -52,14 +49,15 @@ public class RedisCacheConfig extends CachingConfigurerSupport {
 		// 或者JdkSerializationRedisSerializer序列化方式;
 		RedisSerializer<String> redisSerializer = new StringRedisSerializer();// Long类型不可以会出现异常信息;
 		redisTemplate.setKeySerializer(redisSerializer);
-		
+
 		redisTemplate.setHashKeySerializer(redisSerializer);
-		// 配置json格式value 
-		Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<Object>(Object.class);
-	    ObjectMapper om = new ObjectMapper();
-        om.setVisibility(PropertyAccessor.ALL,JsonAutoDetect.Visibility.ANY);  
-        om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);  
-        jackson2JsonRedisSerializer.setObjectMapper(om);
+		// 配置json格式value
+		Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<Object>(
+				Object.class);
+		ObjectMapper om = new ObjectMapper();
+		om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+		om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+		jackson2JsonRedisSerializer.setObjectMapper(om);
 		redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
 		return redisTemplate;
 	}

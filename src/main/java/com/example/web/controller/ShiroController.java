@@ -2,6 +2,8 @@ package com.example.web.controller;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.shiro.SecurityUtils;
@@ -107,8 +109,11 @@ public class ShiroController {
 	}
 
 	@RequestMapping("/user")
-	public String getUserList(Map<String, Object> model) {
+	public String getUserList(HttpServletRequest request, Map<String, Object> model) {
 		model.put("userList", userDao.getList());
+		// redis session 测试
+		 HttpSession session = request.getSession();
+		 session.setAttribute("redis session test", "heheiheei");
 		return "user";
 	}
 
