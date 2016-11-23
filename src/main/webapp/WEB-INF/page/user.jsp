@@ -16,7 +16,7 @@
     <shiro:hasRole name="normal">normal角色登录显示此内容<br/></shiro:hasRole><br/>
 
     <shiro:hasAnyRoles name="manager,admin">manager or admin 角色用户登录显示此内容<br/></shiro:hasAnyRoles><br/>
-    <shiro:principal/>-显示当前登录用户名<br/><br/>
+    <shiro:principal property="username"/>-显示当前登录用户名<br/><br/>
     <shiro:hasPermission name="add">add权限用户显示此内容<br/></shiro:hasPermission>
     <shiro:hasPermission name="user:query">user:query权限用户显示此内容<br/></shiro:hasPermission>
     <shiro:lacksPermission name="user:query">不具有user:query权限的用户显示此内容 <br/></shiro:lacksPermission>

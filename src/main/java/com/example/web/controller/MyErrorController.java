@@ -22,7 +22,7 @@ public class MyErrorController {
 	 */
 	@RequestMapping("/error/{code}")
 	public String error(@PathVariable("code") int code) {
-		return "redirect:http://www.utouu.com/" + code + ".html";
+		return "error/"+code;
 	}
 
 	/**
@@ -34,7 +34,7 @@ public class MyErrorController {
 	 */
 	@RequestMapping("/server_error")
 	public String serverError() {
-		return "redirect:http://www.utouu.com/500.html";
+		return "error/500";
 	}
 
 }

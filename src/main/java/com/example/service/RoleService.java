@@ -7,4 +7,5 @@ import com.example.dto.RoleDto;
 public interface RoleService {
 
 	List<RoleDto> getUserRoles(Long userId);
+	
 }

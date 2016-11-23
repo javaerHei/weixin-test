@@ -1,5 +1,6 @@
 package com.example.web.shiro;
 
+import java.io.Serializable;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -14,8 +15,10 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.crypto.hash.Sha1Hash;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ByteSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,16 +30,40 @@ import com.example.dto.RoleDto;
 import com.example.dto.UserDto;
 import com.example.service.UserService;
 
+/**
+ * shiro自定义realm <br>
+ * 可参考SimpleAccountRealm实现 创建日期：2016年11月21日
+ * 
+ * @author gongmingguo
+ * @since 1.0
+ * @version 1.0
+ */
 public class ShiroRealmImpl extends AuthorizingRealm {
 
 	private static final Logger logger = LoggerFactory.getLogger(ShiroRealmImpl.class);
 
-	public static final String HASH_ALGORITHM = "SHA-1";
-	public static final int HASH_INTERATIONS = 1024;
-	public static final int SALT_SIZE = 8;
-
 	@Autowired
 	private UserService userService;
+
+	/**
+	 * 登录认证
+	 */
+	@Override
+	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken)
+			throws AuthenticationException {
+		// UsernamePasswordToken对象用来存放提交的登录信息
+		UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
+		logger.info(
+				"验证当前Subject时获取到token为：" + ReflectionToStringBuilder.toString(token, ToStringStyle.MULTI_LINE_STYLE));
+		// 查出是否有此用户
+		User user = userService.findByName(token.getUsername());
+		if (user != null) {
+			// 若存在，将此用户存放到登录认证info中，无需自己做密码对比，Shiro会为我们进行密码对比校验，可以加盐
+			ByteSource salt = ByteSource.Util.bytes(token.getUsername().getBytes());
+			return new SimpleAuthenticationInfo(new Principal(user, false), user.getPassword(), salt, getName());
+		}
+		return null;
+	}
 
 	/**
 	 * 权限认证，为当前登录的Subject授予角色和权限
@@ -51,7 +78,8 @@ public class ShiroRealmImpl extends AuthorizingRealm {
 		logger.info("##################执行Shiro权限认证##################");
 		// 获取当前登录输入的用户名，等价于(String)
 		// principalCollection.fromRealm(getName()).iterator().next();
-		String loginName = (String) super.getAvailablePrincipal(principals);
+		Principal principal = (Principal) getAvailablePrincipal(principals);
+		String loginName = principal.getUsername();
 		// 到数据库查是否有此对象
 		UserDto user = userService.findByName(loginName);// 实际项目中，这里可以根据实际情况做缓存，如果不做，Shiro自己也是有时间间隔机制，2分钟内不会重复执行该方法
 		if (user != null) {
@@ -80,44 +108,63 @@ public class ShiroRealmImpl extends AuthorizingRealm {
 	}
 
 	/**
-	 * 登录认证
-	 */
-	@Override
-	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken)
-			throws AuthenticationException {
-		// UsernamePasswordToken对象用来存放提交的登录信息
-		UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
-		logger.info(
-				"验证当前Subject时获取到token为：" + ReflectionToStringBuilder.toString(token, ToStringStyle.MULTI_LINE_STYLE));
-		// 查出是否有此用户
-		User user = userService.findByName(token.getUsername());
-		if (user != null) {
-			// 若存在，将此用户存放到登录认证info中，无需自己做密码对比，Shiro会为我们进行密码对比校验，可以扩展
-			return new SimpleAuthenticationInfo(user.getUsername(), user.getPassword(), getName());
-		}
-		return null;
-	}
-
-	/**
 	 * 设定密码校验的Hash算法与迭代次数
 	 */
 	@PostConstruct
 	public void initCredentialsMatcher() {
-		HashedCredentialsMatcher matcher = new HashedCredentialsMatcher("md5");
+		HashedCredentialsMatcher matcher = new HashedCredentialsMatcher(Sha1Hash.ALGORITHM_NAME);
 		setCredentialsMatcher(matcher);
+	}
+
+	/**
+	 * 授权用户信息
+	 */
+	public static class Principal implements Serializable {
+
+		private static final long serialVersionUID = 1L;
+
+		private Long id; // 编号
+		private String username; // 登录名
+		private String name; // 姓名
+		private boolean mobileLogin; // 是否手机登录
+
+		public Principal(User user, boolean mobileLogin) {
+			this.id = user.getId();
+			this.username = user.getUsername();
+			this.mobileLogin = mobileLogin;
+		}
+
+		public Long getId() {
+			return id;
+		}
+
+		public String getUsername() {
+			return username;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public boolean isMobileLogin() {
+			return mobileLogin;
+		}
+
 	}
 
 	/**
 	 * 生成安全的密码，
 	 */
-	public static String entryptPassword(String plainPassword) {
+	public static String entryptPassword(String plainPassword, byte[] salt) {
 		String plain = Encodes.unescapeHtml(plainPassword);
-		byte[] hashPassword = Digests.md5(plain.getBytes());
+		byte[] hashPassword = Digests.sha1(plain.getBytes(), salt);
 		return Encodes.encodeHex(hashPassword);
 	}
 
 	public static void main(String[] args) {
-		System.out.println(entryptPassword("123456"));
+		String salt = "tom";
+		ByteSource byteSource = ByteSource.Util.bytes(salt.getBytes());
+		System.out.println(entryptPassword("123456", byteSource.getBytes()));
 	}
 
 }

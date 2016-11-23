@@ -1,4 +1,5 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,12 +43,6 @@
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <!-- Le fav and touch icons -->
-    <link rel="shortcut icon" href="../assets/ico/favicon.ico">
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">
   </head>
 
   <!--[if lt IE 7 ]> <body class="ie ie6"> <![endif]-->
@@ -69,60 +64,41 @@
         </div>
     </div>
     
-
     <div class="container-fluid">
-        
         <div class="row-fluid">
-    <div class="dialog span4">
-        <div class="block">
-            <div class="block-heading">用户登录</div>
-            <div class="block-body">
-                <form:form action="${pageContext.request.contextPath }/login" 
-			        commandName="user" method="post">
-			        <label>用户名：</label>
-			        <form:input path="username" cssClass="span12"/>
-			        <form:errors path="username" cssClass="error" />
-			        
-			        <label>密码：</label>
-			        <form:password path="password" cssClass="span12" />
-			        <form:errors path="password" cssClass="error" />
-			        
-			        <input type="submit" value="登录" class="btn btn-primary pull-right">
-			        <label class="remember-me"><input type="checkbox"> 记住密码</label>
-			        <div class="clearfix"></div>
-			    </form:form>
-            </div>
-        </div>
-     <!--    <p class="pull-right" style=""><a href="#" target="blank">Theme by Portnine</a></p> -->
-        
-        <p><a href="reset-password.html">忘记密码?</a></p>
-    </div>
-</div>
-
-
-    
-
-    
-
-    
+        	<c:if test="${not empty(message) }">
+        	<div class="alert alert-error">
+				${message}
+			</div>
+        	</c:if>
+		    <div class="dialog span4">
+		       
+		        <div class="block">
+		            <div class="block-heading">用户登录</div>
+		            <div class="block-body">
+		                <form action="${pageContext.request.contextPath }/login" method="post">
+					        <label>用户名：</label>
+					        <input type="text" name="username" class="span12">
+					        
+					        <label>密码：</label>
+					        <input type="password" name="password" class="span12">
+					        
+					        <input type="submit" value="登录" class="btn btn-primary pull-right">
+					        <label class="remember-me"><input type="checkbox"> 记住密码</label>
+					        <div class="clearfix"></div>
+					    </form>
+		            </div>
+		        </div>
+		     <!--    <p class="pull-right" style=""><a href="#" target="blank">Theme by Portnine</a></p> -->
+		        
+		        <p><a href="reset-password.html">忘记密码?</a></p>
+		    </div>
+		</div>
 
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="lib/bootstrap/js/bootstrap.js"></script>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
   </body>
 </html>
 
