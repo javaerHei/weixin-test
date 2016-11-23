@@ -5,13 +5,13 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
@@ -24,8 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.bean.User;
-import com.example.common.Digests;
-import com.example.common.Encodes;
 import com.example.dto.RoleDto;
 import com.example.dto.UserDto;
 import com.example.service.UserService;
@@ -53,6 +51,19 @@ public class ShiroRealmImpl extends AuthorizingRealm {
 			throws AuthenticationException {
 		// UsernamePasswordToken对象用来存放提交的登录信息
 		UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
+		// TODO 验证验证码
+		String captcha = token.getCaptcha();
+		if(StringUtils.isEmpty(captcha)) {
+			throw new AuthenticationException("msg:请输入验证码");
+		}
+		logger.info("验证码:{}", captcha);
+		Object validateCode = UserUtils.getSession().getAttribute("validateCode");
+		if (validateCode != null) {
+			if (!validateCode.toString().equals(captcha)) {
+				throw new AuthenticationException("msg:验证码错误");
+			}
+		}
+
 		logger.info(
 				"验证当前Subject时获取到token为：" + ReflectionToStringBuilder.toString(token, ToStringStyle.MULTI_LINE_STYLE));
 		// 查出是否有此用户
@@ -152,19 +163,17 @@ public class ShiroRealmImpl extends AuthorizingRealm {
 
 	}
 
-	/**
-	 * 生成安全的密码，
-	 */
-	public static String entryptPassword(String plainPassword, byte[] salt) {
-		String plain = Encodes.unescapeHtml(plainPassword);
-		byte[] hashPassword = Digests.sha1(plain.getBytes(), salt);
-		return Encodes.encodeHex(hashPassword);
-	}
-
-	public static void main(String[] args) {
-		String salt = "tom";
-		ByteSource byteSource = ByteSource.Util.bytes(salt.getBytes());
-		System.out.println(entryptPassword("123456", byteSource.getBytes()));
-	}
-
+	/*	*//**
+			 * 生成安全的密码，
+			 *//*
+			 * public static String entryptPassword(String plainPassword, byte[]
+			 * salt) { String plain = Encodes.unescapeHtml(plainPassword);
+			 * byte[] hashPassword = Digests.sha1(plain.getBytes(), salt);
+			 * return Encodes.enecodeHex(hashPassword); }
+			 * 
+			 * public static void main(String[] args) { String salt = "tom";
+			 * ByteSource byteSource = ByteSource.Util.bytes(salt.getBytes());
+			 * System.out.println(entryptPassword("123456",
+			 * byteSource.getBytes())); }
+			 */
 }

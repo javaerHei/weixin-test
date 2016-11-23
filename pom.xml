@@ -125,8 +125,16 @@
 		    <groupId>org.springframework.session</groupId>
 		    <artifactId>spring-session</artifactId>
 		</dependency>
+		<!-- 验证码 -->
+		<dependency>
+		  <groupId>com.github.cage</groupId>
+		  <artifactId>cage</artifactId>
+		  <version>1.0</version>
+		</dependency>
 	</dependencies>
 
+   
+	
 	<build>
 		<plugins>
 			<plugin>

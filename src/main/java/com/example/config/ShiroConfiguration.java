@@ -116,12 +116,15 @@ public class ShiroConfiguration extends CachingConfigurerSupport {
 		shiroFilterFactoryBean.setSecurityManager(defaultWebSecurityManager());
 		//loginUrl认证提交地址
 		shiroFilterFactoryBean.setLoginUrl("/login");
-	    shiroFilterFactoryBean.setSuccessUrl("/user");
+	    shiroFilterFactoryBean.setSuccessUrl("/index");
 		shiroFilterFactoryBean.setUnauthorizedUrl("/403");
 		loadShiroFilterChain(shiroFilterFactoryBean);
 		// 过滤器
 		Map<String, Filter> filters = new LinkedHashMap<>();
-		filters.put("authc", new FormAuthenticationFilter());
+		FormAuthenticationFilter formAuthenticationFilter = new FormAuthenticationFilter();
+		formAuthenticationFilter.setLoginUrl("/login");
+		filters.put("authc", formAuthenticationFilter);
+		
 		shiroFilterFactoryBean.setFilters(filters);
 		
 		return shiroFilterFactoryBean;
@@ -140,12 +143,16 @@ public class ShiroConfiguration extends CachingConfigurerSupport {
 		filterChainDefinitionMap.put("/", "anon");
 		filterChainDefinitionMap.put("/error/**", "anon");
 		filterChainDefinitionMap.put("/server_error", "anon");
-		// http://localhost:81/lib/bootstrap/css/bootstrap.css
+		
+		
+		filterChainDefinitionMap.put("/login-validateCode", "anon");
+		
 		// 静态资源
-		filterChainDefinitionMap.put("/lib/**", "anon");
-		filterChainDefinitionMap.put("/images/**", "anon");
-		filterChainDefinitionMap.put("/javascripts/**", "anon");
-		filterChainDefinitionMap.put("/stylesheets/**", "anon");
+		filterChainDefinitionMap.put("/css/**", "anon");
+		filterChainDefinitionMap.put("/img/**", "anon");
+		filterChainDefinitionMap.put("/js/**", "anon");
+		filterChainDefinitionMap.put("/fonts/**", "anon");
+		filterChainDefinitionMap.put("/bower_components/**", "anon");
 		
 		filterChainDefinitionMap.put("/logout", "logout");
 		// authc：该过滤器下的页面必须验证后才能访问，它是Shiro内置的一个拦截器org.apache.shiro.web.filter.authc.FormAuthenticationFilter
