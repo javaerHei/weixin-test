@@ -38,7 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @version 1.0
  */
 //maxInactiveIntervalInSeconds设置session失效时间,默认30分钟
-@EnableRedisHttpSession(maxInactiveIntervalInSeconds=10)
+@EnableRedisHttpSession
 @Configuration
 public class ShiroConfiguration extends CachingConfigurerSupport {
 
