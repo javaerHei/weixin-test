@@ -8,6 +8,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -24,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.bean.User;
+import com.example.common.Digests;
+import com.example.common.Encodes;
 import com.example.dto.RoleDto;
 import com.example.dto.UserDto;
 import com.example.service.UserService;
@@ -62,6 +65,7 @@ public class ShiroRealmImpl extends AuthorizingRealm {
 			if (!validateCode.toString().equals(captcha)) {
 				throw new AuthenticationException("msg:验证码错误");
 			}
+			UserUtils.getSession().removeAttribute("validateCode");
 		}
 
 		logger.info(
@@ -88,7 +92,6 @@ public class ShiroRealmImpl extends AuthorizingRealm {
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
 		logger.info("##################执行Shiro权限认证##################");
 		// 获取当前登录输入的用户名，等价于(String)
-		// principalCollection.fromRealm(getName()).iterator().next();
 		Principal principal = (Principal) getAvailablePrincipal(principals);
 		String loginName = principal.getUsername();
 		// 到数据库查是否有此对象
@@ -117,7 +120,12 @@ public class ShiroRealmImpl extends AuthorizingRealm {
 		// 返回null的话，就会导致任何用户访问被拦截的请求时，都会自动跳转到unauthorizedUrl指定的地址
 		return null;
 	}
-
+	
+	public void clearUserCache() {
+		PrincipalCollection principals = SecurityUtils.getSubject().getPrincipals() ;
+		super.doClearCache(principals);
+	}
+	
 	/**
 	 * 设定密码校验的Hash算法与迭代次数
 	 */
@@ -163,17 +171,17 @@ public class ShiroRealmImpl extends AuthorizingRealm {
 
 	}
 
-	/*	*//**
-			 * 生成安全的密码，
-			 *//*
-			 * public static String entryptPassword(String plainPassword, byte[]
-			 * salt) { String plain = Encodes.unescapeHtml(plainPassword);
-			 * byte[] hashPassword = Digests.sha1(plain.getBytes(), salt);
-			 * return Encodes.enecodeHex(hashPassword); }
-			 * 
-			 * public static void main(String[] args) { String salt = "tom";
-			 * ByteSource byteSource = ByteSource.Util.bytes(salt.getBytes());
-			 * System.out.println(entryptPassword("123456",
-			 * byteSource.getBytes())); }
-			 */
+	// 生成安全的密码，
+	public static String entryptPassword(String plainPassword, byte[] salt) {
+		String plain = Encodes.unescapeHtml(plainPassword);
+		byte[] hashPassword = Digests.sha1(plain.getBytes(), salt);
+		return Encodes.encodeHex(hashPassword);
+	}
+
+	public static void main(String[] args) {
+		String salt = "jack";
+		ByteSource byteSource = ByteSource.Util.bytes(salt.getBytes());
+		System.out.println(entryptPassword("123456", byteSource.getBytes()));
+	}
+
 }

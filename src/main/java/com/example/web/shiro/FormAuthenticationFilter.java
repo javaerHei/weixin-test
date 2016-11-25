@@ -56,7 +56,9 @@ public class FormAuthenticationFilter extends org.apache.shiro.web.filter.authc.
 		return messageParam;
 	}
 	
-	
+	/**
+	 * 登录成功跳转
+	 */
 	@Override
 	protected void issueSuccessRedirect(ServletRequest request, ServletResponse response) throws Exception {
 		WebUtils.issueRedirect(request, response, getSuccessUrl(), null, true);

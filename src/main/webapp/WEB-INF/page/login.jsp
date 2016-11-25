@@ -52,7 +52,7 @@
                     <div class="clearfix"></div>
                     
                     <div class="input-prepend">
-                        <label class="remember" for="remember"><input type="checkbox" id="remember"> 记住密码</label>
+                        <label class="remember" for="remember"><input type="checkbox" id="remember" name="rememberMe"> 记住我（下次自动登录）</label>
                     </div>
                     
                     <div class="clearfix"></div>

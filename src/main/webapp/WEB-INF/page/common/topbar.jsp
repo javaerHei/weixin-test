@@ -75,3 +75,24 @@
         </div>
     </div>
     <!-- topbar ends -->
+    
+    <script type="text/javascript" src="http://cdn.tailorx.cn/ui/pc/tailorx/skin/js/sockjs.min.js"></script>
+	<script type="text/javascript" src="http://cdn.tailorx.cn/ui/pc/tailorx/skin/js/stomp.min.js"></script>
+	<%
+		String sessionId = request.getSession().getId();
+	%>
+    <script type="text/javascript">
+    	$(function() {
+    		// session失效弹窗
+    		 var sessionId ="<%=sessionId%>";
+    		 var socket = new SockJS("/sessionDestoryEndpoint");
+   			 var stompClient = Stomp.over(socket);
+   			 stompClient.connect({},function(frame) {
+   				stompClient.subscribe("/queue/sessionDestory/"+sessionId,function(response){
+   					alert("用户超时，请重新登录!");
+   					location.reload();
+   				});
+   			 });
+    	});
+	   
+    </script>

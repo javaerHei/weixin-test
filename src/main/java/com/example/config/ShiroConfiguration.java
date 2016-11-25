@@ -5,10 +5,14 @@ import java.util.Map;
 
 import javax.servlet.Filter;
 
+import org.apache.shiro.mgt.RememberMeManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.servlet.Cookie;
+import org.apache.shiro.web.servlet.SimpleCookie;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.context.annotation.Bean;
@@ -33,7 +37,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @since 1.0
  * @version 1.0
  */
-@EnableRedisHttpSession
+//maxInactiveIntervalInSeconds设置session失效时间,默认30分钟
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds=10)
 @Configuration
 public class ShiroConfiguration extends CachingConfigurerSupport {
 
@@ -100,9 +105,20 @@ public class ShiroConfiguration extends CachingConfigurerSupport {
 		dwsm.setRealm(shiroRealm());
 		// <!-- 用户授权/认证信息Cache -->
 		dwsm.setCacheManager(shiroRedisCacheManager());
+		dwsm.setRememberMeManager(rememberMeManager());
 		return dwsm;
 	}
 
+	// 记住我
+	@Bean
+	public RememberMeManager rememberMeManager() {
+		CookieRememberMeManager rememberMeManager = new CookieRememberMeManager();
+		Cookie cookie = new SimpleCookie("rememberMe");
+		cookie.setMaxAge(30*24*3600);
+		rememberMeManager.setCookie(cookie);
+		return rememberMeManager;
+	}
+	
 	@Bean
 	public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor() {
 		AuthorizationAttributeSourceAdvisor aasa = new AuthorizationAttributeSourceAdvisor();
@@ -153,6 +169,9 @@ public class ShiroConfiguration extends CachingConfigurerSupport {
 		filterChainDefinitionMap.put("/js/**", "anon");
 		filterChainDefinitionMap.put("/fonts/**", "anon");
 		filterChainDefinitionMap.put("/bower_components/**", "anon");
+		
+		// 记住我或者认证通过的地址
+		filterChainDefinitionMap.put("/index", "authc,user");
 		
 		filterChainDefinitionMap.put("/logout", "logout");
 		// authc：该过滤器下的页面必须验证后才能访问，它是Shiro内置的一个拦截器org.apache.shiro.web.filter.authc.FormAuthenticationFilter

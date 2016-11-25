@@ -89,6 +89,7 @@ public class RedisCacheManager implements CacheManager {
 			return value;
 		}
 
+		// 用户正常退出时清除该用户缓存
 		@SuppressWarnings("unchecked")
 		@Override
 		public V remove(K key) throws CacheException {

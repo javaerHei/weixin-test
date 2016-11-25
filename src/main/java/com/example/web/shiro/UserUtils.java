@@ -9,8 +9,6 @@ import org.apache.shiro.subject.Subject;
 /**
  * 用户工具类
  * 
- * @author ThinkGem
- * @version 2013-12-05
  */
 public class UserUtils {
 
@@ -31,7 +29,6 @@ public class UserUtils {
 			if (session != null) {
 				return session;
 			}
-			// subject.logout();
 		} catch (InvalidSessionException e) {
 
 		}
