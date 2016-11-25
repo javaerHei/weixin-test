@@ -76,8 +76,8 @@
     </div>
     <!-- topbar ends -->
     
-    <script type="text/javascript" src="http://cdn.tailorx.cn/ui/pc/tailorx/skin/js/sockjs.min.js"></script>
-	<script type="text/javascript" src="http://cdn.tailorx.cn/ui/pc/tailorx/skin/js/stomp.min.js"></script>
+    <script type="text/javascript" src="js/sockjs.min.js"></script>
+	<script type="text/javascript" src="js/stomp.min.js"></script>
 	<%
 		String sessionId = request.getSession().getId();
 	%>
