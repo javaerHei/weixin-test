@@ -9,8 +9,9 @@ import org.springframework.http.HttpStatus;
 
 /**
  * Tomcat 错误页配置
+ * <br>创建日期：2016年12月22日
  * 
- * @Date 2015年6月29日
+ * @author gongmingguo
  * @since 1.0
  * @version 1.0
  */

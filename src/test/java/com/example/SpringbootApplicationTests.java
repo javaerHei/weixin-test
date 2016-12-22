@@ -53,8 +53,9 @@ public class SpringbootApplicationTests {
 	public void redis_test3() {
 		RedisConnection redisConnection = redisTemplate.getConnectionFactory().getConnection();
 		//redisConnection.set("asd".getBytes() ,"value2".getBytes());
-		
 		Long lLen = redisConnection.lLen("list1".getBytes());
 		System.out.println(lLen);
 	}
+	
+	
 }
