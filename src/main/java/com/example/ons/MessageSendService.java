@@ -44,11 +44,10 @@ public class MessageSendService {
 		try {
 			message = new Message(TPOIC_TEST, // MQ消息的Topic，需要事先申请
 					"", // MQ Tag，可以进行消息过滤
-					messageContent.getBytes("UTF-8"));
+					messageContent.getBytes("UTF-8"));// 消息体，和MQTT的body对应
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
-		} // 消息体，和MQTT的body对应
-		message.setKey("msg_001");
+		} 
 		// 同步发送消息，只要不抛异常就是成功
 		SendResult sendResult = producer.send(message);
 		System.out.println(sendResult);
@@ -71,7 +70,6 @@ public class MessageSendService {
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} 
-		message.setKey("msg_002");
 		// 异步发送消息, 发送结果通过callback返回给客户端。
 		producer.sendAsync(message, new SendCallback() {
 
