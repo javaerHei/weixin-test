@@ -27,7 +27,11 @@ public class OnsApplicationTest {
 	
 	@Test
 	public void redis_test1() throws UnsupportedEncodingException {
-		Message message = new Message(TPOIC_TEST, "", "这个是测试消息".getBytes("UTF-8"));
+		Message message = new Message(
+				TPOIC_TEST, //MQ消息的Topic，需要事先申请
+				"", //MQ Tag，可以进行消息过滤
+				"这个是测试消息".getBytes("UTF-8"));//消息体，和MQTT的body对应
+		message.setKey("msg_001");
 		SendResult sendResult = producer.send(message);
 		System.out.println(sendResult);
 		try {
