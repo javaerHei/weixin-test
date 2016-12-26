@@ -14,7 +14,7 @@ import com.aliyun.openservices.ons.api.SendCallback;
 import com.aliyun.openservices.ons.api.SendResult;
 
 /**
- * ons消息发送 可靠同步发送、可靠异步发送、单向(Oneway)发送。 <br>
+ * ons消息发送 <br>
  * 创建日期：2016年12月23日
  * 
  * @author gongmingguo

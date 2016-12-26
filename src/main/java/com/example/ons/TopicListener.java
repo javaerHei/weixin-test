@@ -13,7 +13,7 @@ import com.aliyun.openservices.ons.api.MessageListener;
 
 /**
  *
- *
+ *ons 消息监听
  */
 @Component
 public class TopicListener implements MessageListener {

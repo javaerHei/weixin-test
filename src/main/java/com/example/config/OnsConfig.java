@@ -47,6 +47,14 @@ public class OnsConfig {
 		producerProperties.put(PropertyKeyConst.AccessKey, accessKey);
 		producerProperties.put(PropertyKeyConst.SecretKey, secretKey);
 
+		//公有云生产环境：http://onsaddr-internal.aliyun.com:8080/rocketmq/nsaddr4client-internal
+        //公有云公测环境：http://onsaddr-internet.aliyun.com/rocketmq/nsaddr4client-internet
+		
+       // 默认连接内网，内网连接错误然后连接公网,代码：ONSClientAbstract。
+		
+//		producerProperties.put(PropertyKeyConst.ONSAddr,
+//          "http://onsaddr-internal.aliyun.com:8080/rocketmq/nsaddr4client-internal");
+        
 		ProducerBean producerBean = new ProducerBean();
 		producerBean.setProperties(producerProperties);
 		logger.info("........producer created successfully ........");
@@ -58,7 +66,7 @@ public class OnsConfig {
 	public ConsumerBean onsConsumer() {
 
 		Properties consumerProperties = new Properties();
-		consumerProperties.put(PropertyKeyConst.ConsumerId, consumerId);
+		consumerProperties.put(PropertyKeyConst.ConsumerId, consumerId);// 您在控制台创建的 Consumer ID
 		consumerProperties.put(PropertyKeyConst.AccessKey, accessKey);
 		consumerProperties.put(PropertyKeyConst.SecretKey, secretKey);
 
