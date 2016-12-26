@@ -10,7 +10,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @SpringApplicationConfiguration(classes = SpringbootApplication.class)
 @WebAppConfiguration
 @ActiveProfiles("dev")
-public class SpringbootApplicationTests {
+public class OnsApplicationTest {
+
 
 	
 }
