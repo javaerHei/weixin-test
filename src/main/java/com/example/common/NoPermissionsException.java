@@ -56,12 +56,7 @@ public class NoPermissionsException extends RuntimeException {
 		super(cause);
 	}
 
-	/**
-	 * @since 1.0
-	 * @return <br>
-	 *         <b>作者： @author jinww</b> <br>
-	 *         创建时间：2015年5月18日 下午4:09:43
-	 */
+
 	public String getErrorCode() {
 		return errorCode;
 	}

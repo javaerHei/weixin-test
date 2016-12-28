@@ -55,13 +55,7 @@ public class JsonUtils {
 		return result(false, errorMsg, errorCode);
 	}
 	
-	/**
-	 * @since 1.0 
-	 * @param errorMsg errorMsg
-	 * @return
-	 * <br><b>作者： @author songxuan</b>
-	 * <br>创建时间：2016年2月18日 上午10:57:50
-	 */
+	
 	public static String getFailure(String errorMsg){
 		return result(false, errorMsg, "");
 	}
@@ -93,13 +87,7 @@ public class JsonUtils {
 		return result.toString();
 	}
 	
-	/**
-	 * @since 1.0 
-	 * @param text text
-	 * @return
-	 * <br><b>作者： @author songxuan</b>
-	 * <br>创建时间：2016年2月18日 上午10:58:27
-	 */
+	
 	public static Boolean isJson(String text){
 		try {
 			JSONObject.parseObject(text);
