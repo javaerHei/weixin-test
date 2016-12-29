@@ -12,10 +12,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +27,7 @@ import com.aliyun.oss.common.utils.BinaryUtil;
 import com.aliyun.oss.model.MatchMode;
 import com.aliyun.oss.model.PolicyConditions;
 import com.example.common.AliyunUtils;
+import com.example.common.Encodes;
 import com.example.common.HttpClientUtils;
 import com.example.common.JsonResult;
 import com.example.common.JsonUtils;
@@ -49,10 +52,10 @@ public class OssController extends BaseController {
 
 	@Value("${oss.accessKeySecret}")
 	private String accessKeySecret;
-	
+
 	@Value(value = "${oss.defaultBucket}")
 	private String defaultBucket;
-	
+
 	@Autowired
 	private AliyunUtils aliyunUtils;
 
@@ -72,6 +75,7 @@ public class OssController extends BaseController {
 
 	/**
 	 * JavaScript客户端签名直传
+	 * 
 	 * @since 1.0
 	 * @return <br>
 	 */
@@ -80,7 +84,6 @@ public class OssController extends BaseController {
 		return "oss1";
 	}
 
-	
 	/**
 	 * 服务端签名后直传
 	 * 
@@ -103,9 +106,10 @@ public class OssController extends BaseController {
 	@ResponseBody
 	@RequestMapping("/upload")
 	public String upload(MultipartFile file) throws Exception {
-		logger.info("开始上传文件: {}",file.getOriginalFilename());
+		logger.info("开始上传文件: {}", file.getOriginalFilename());
 		aliyunUtils.uploadFile(file, ossFloder + file.getOriginalFilename());
-		logger.info("文件上传成功，link: {}",  "http://"+defaultBucket +"."+ endpoint+"/"+ ossFloder + file.getOriginalFilename());
+		logger.info("文件上传成功，link: {}",
+				"http://" + defaultBucket + "." + endpoint + "/" + ossFloder + file.getOriginalFilename());
 		return JsonUtils.getSuccess();
 	}
 
@@ -123,7 +127,7 @@ public class OssController extends BaseController {
 	 */
 	@RequestMapping("/signature")
 	@ResponseBody
-	public String signature(HttpServletResponse response) throws UnsupportedEncodingException {
+	public String signature() throws UnsupportedEncodingException {
 		/**
 		 * accessid: 指的用户请求的accessid。注意仅知道accessid, 对数据不会有影响。
 		 * host:指的是用户要往哪个域名发往上传请求。 policy：指的是用户表单上传的策略policy，是经过base64编码过的字符串。
@@ -155,20 +159,17 @@ public class OssController extends BaseController {
 		data.put("dir", dir);
 		data.put("host", host);
 		data.put("expire", String.valueOf(expireEndTime / 1000));
-		//
-		response.setHeader("Access-Control-Allow-Origin", "*");
-		response.setHeader("Access-Control-Allow-Methods", "GET, POST");
 
 		JSONObject callbackJson = new JSONObject();
 		// TODO
-		String callbackUrl = "http://gmgtest.ngrok.cc/oss/callback";
+		String callbackUrl = "http://gmgtest.ngrok.cc/oss/callback?test=demo";
 		callbackJson.put("callbackUrl", callbackUrl);
+		// 支持OSS系统变量
 		callbackJson.put("callbackBody",
 				"filename=${object}&size=${size}&mimeType=${mimeType}&height=${imageInfo.height}&width=${imageInfo.width}");
-		callbackJson.put("callbackBodyType", "application/x-www-form-urlencoded");
 
 		// 回调函数
-		data.put("callback", BinaryUtil.toBase64String(callbackJson.toJSONString().getBytes("utf-8")));
+		data.put("callback", BinaryUtil.toBase64String(callbackJson.toJSONString().getBytes()));
 		result.addData(data);
 		return result.toJson();
 	}
@@ -182,16 +183,14 @@ public class OssController extends BaseController {
 	 *        创建时间：2016年12月27日 下午1:31:50
 	 */
 	@ResponseBody
-	@RequestMapping("/callback")
+	@RequestMapping(value = "/callback", method = RequestMethod.POST)
 	public void callBack(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		// GetPostBody(request.getInputStream(),Integer.parseInt(request.getHeader("content-length")));
-
-		// String ossCallbackBody =
-		// GetPostBody(request.getInputStream(),Integer.parseInt(request.getHeader("content-length")));
 
 		String ossCallbackBody = getPostParamter(request);
-
 		System.out.println("OSS Callback Body:" + ossCallbackBody);
+
+		// 验证回调请求确实是由OSS发起的话，那么可以通过在回调中带上签名来验证OSS的身份。
+		// https://help.aliyun.com/document_detail/31989.html?spm=5176.doc31853.2.1.iJHR03
 		boolean ret = VerifyOSSCallbackRequest(request, ossCallbackBody);
 		System.out.println("verify result:" + ret);
 		if (ret) {
@@ -202,14 +201,22 @@ public class OssController extends BaseController {
 	}
 
 	private String getPostParamter(HttpServletRequest request) {
+		String getQueryString = request.getQueryString();
+		String getQueryKey = null;
+		if (StringUtils.isNotEmpty(getQueryString)) {
+			getQueryKey = getQueryString.split("=")[0];
+		}
 		Map<String, String[]> params = request.getParameterMap();
 		String queryString = "";
 		for (String key : params.keySet()) {
-			String[] values = params.get(key);
-			for (int i = 0; i < values.length; i++) {
-				String value = values[i];
-				queryString += key + "=" + value + "&";
+			if (!key.equals(getQueryKey)) {
+				String[] values = params.get(key);
+				for (int i = 0; i < values.length; i++) {
+					String value = values[i];
+					queryString += Encodes.urlEncode(key) + "=" + Encodes.urlEncode(value) + "&";
+				}
 			}
+
 		}
 		// 去掉最后一个空格
 		queryString = queryString.substring(0, queryString.length() - 1);
@@ -218,34 +225,36 @@ public class OssController extends BaseController {
 
 	protected boolean VerifyOSSCallbackRequest(HttpServletRequest request, String ossCallbackBody) throws Exception {
 		boolean ret = false;
+		// oss签名放在回调请求的authorization头中
 		String autorizationInput = new String(request.getHeader("Authorization"));
 		String pubKeyInput = request.getHeader("x-oss-pub-key-url");
 		byte[] authorization = BinaryUtil.fromBase64String(autorizationInput);
+
 		byte[] pubKey = BinaryUtil.fromBase64String(pubKeyInput);
 		String pubKeyAddr = new String(pubKey);
-
-		System.out.println(pubKeyAddr);
+		// public_key为公钥，
+		System.out.println("公钥的url地址:" + pubKeyAddr);
 
 		if (!pubKeyAddr.startsWith("http://gosspublic.alicdn.com/")
 				&& !pubKeyAddr.startsWith("https://gosspublic.alicdn.com/")) {
 			System.out.println("pub key addr must be oss addrss");
 			return false;
 		}
-		String retString = HttpClientUtils.get(pubKeyAddr);
-		retString = retString.replace("-----BEGIN PUBLIC KEY-----", "");
-		retString = retString.replace("-----END PUBLIC KEY-----", "");
+		String publicKey = HttpClientUtils.get(pubKeyAddr);
+		publicKey = publicKey.replace("-----BEGIN PUBLIC KEY-----", "");
+		publicKey = publicKey.replace("-----END PUBLIC KEY-----", "");
+		System.out.println("public_key : " + publicKey);
 
 		String queryString = request.getQueryString();
-		// TODO
-		// String decodeUri = java.net.URLDecoder.decode(uri, "UTF-8");
-		String authStr = "http://gmgtest.ngrok.cc/oss/callback";
+		String uri = request.getRequestURI();
+		String decodeUri = java.net.URLDecoder.decode(uri, "UTF-8");
+		String authStr = decodeUri;
 		if (queryString != null && !queryString.equals("")) {
 			authStr += "?" + queryString;
 		}
 		authStr += "\n" + ossCallbackBody;
-		System.out.println("retString:" + retString);
 		System.out.println("authStr:" + authStr);
-		ret = doCheck(authStr, authorization, retString);
+		ret = doCheck(authStr, authorization, publicKey);
 		return ret;
 	}
 
@@ -280,8 +289,7 @@ public class OssController extends BaseController {
 					}
 					readLen += readLengthThisTime;
 				}
-				System.out.println(message);
-				return new String(message, "utf-8");
+				return new String(message);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

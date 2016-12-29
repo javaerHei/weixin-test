@@ -18,6 +18,8 @@ import com.aliyun.oss.model.ObjectMetadata;
  *
  * 阿里云OSS工具类
  * 
+ * @author wanglei
+ *
  */
 @Component
 public class AliyunUtils {
@@ -120,6 +122,7 @@ public class AliyunUtils {
 	 * @since 1.0
 	 * @param keyName 名称
 	 * @return <br>
+	 *         创建时间：2015年5月18日 下午3:57:24
 	 */
 	public GetObjectRequest getObjectMetadata(String keyName) {
 		GetObjectRequest getObjectRequest = new GetObjectRequest(defaultBucket, keyName);

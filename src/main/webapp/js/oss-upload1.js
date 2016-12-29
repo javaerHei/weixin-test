@@ -2,7 +2,7 @@
 var accessid= 'LTAIGn24iIondCnv',
 accesskey= 'TEPdIXMnUplKp4lqZmKJfETt6paa5a',
 host = 'http://test-bucket-my.oss-cn-shanghai.aliyuncs.com',//  "http://" + bucket + "." + endpoint;
-g_dirname = '',// 上传目录
+g_dirname = 'demo/',// 上传目录
 g_object_name = '',// 上传保存文件名
 now = timestamp = Date.parse(new Date()) / 1000; 
 
@@ -49,7 +49,8 @@ var uploader = new plupload.Uploader({
 	container: document.getElementById('container'),
 	flash_swf_url : 'js/plupload-2.1.2/js/Moxie.swf',
 	silverlight_xap_url : 'js/plupload-2.1.2/js/Moxie.xap',
-    url : 'http://oss.aliyuncs.com',
+   // url : 'http://oss.aliyuncs.com',
+    url : 'x',
     // 设置上传文件过滤条件
     /*filters: {
         mime_types : [ //只允许上传图片和zip文件
