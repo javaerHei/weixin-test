@@ -54,7 +54,7 @@ public class OnsConfig {
 		
 //		producerProperties.put(PropertyKeyConst.ONSAddr,
 //          "http://onsaddr-internal.aliyun.com:8080/rocketmq/nsaddr4client-internal");
-        
+		
 		ProducerBean producerBean = new ProducerBean();
 		producerBean.setProperties(producerProperties);
 		logger.info("........producer created successfully ........");
@@ -70,6 +70,9 @@ public class OnsConfig {
 		consumerProperties.put(PropertyKeyConst.AccessKey, accessKey);
 		consumerProperties.put(PropertyKeyConst.SecretKey, secretKey);
 
+		// TODO： 默认集群消费,现在设置广播消费
+	//	consumerProperties.put(PropertyKeyConst.MessageModel, PropertyValueConst.BROADCASTING);
+		
 		ConsumerBean consumerBean = new ConsumerBean();
 		consumerBean.setProperties(consumerProperties);
 
