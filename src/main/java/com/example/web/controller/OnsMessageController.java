@@ -18,7 +18,7 @@ import com.example.ons.MessageSendService;
  * @version 1.0
  */
 @Controller
-@RequestMapping("/message")
+@RequestMapping("/ons")
 public class OnsMessageController extends BaseController {
 
 	@Autowired

@@ -71,9 +71,9 @@
 				return;
 			}
 			var delayTime = $("#delayTime").val();
-			var url = "/message/send";
+			var url = "/ons/send";
 			if(delayTime > 0) {
-				url = "/message/send-delay";
+				url = "/ons/send-delay";
 			}
 			$.ajax({
 				url : url,
